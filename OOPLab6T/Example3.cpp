@@ -8,86 +8,100 @@ namespace SpaceExample3 {
 // машина, пасажирський транспорт і автобус.
 //
 
-
-    class Car {
+    class Student {
     protected:
-        string marka;
-        float power;
-        int numberOfWheels;
+        std::string name;
+        int student_id;
+        std::string major;
     public:
-        Car() : marka("Neoplan"), power(5.2f), numberOfWheels(6) {
+        Student(const std::string& name, int student_id, const std::string& major)
+            : name(name), student_id(student_id), major(major) {}
+
+        virtual ~Student() {}
+
+        virtual void display() const {
+            std::cout << "Name: " << name << "\nStudent ID: " << student_id << "\nMajor: " << major << std::endl;
         }
-        Car(string m, float p, int nw) : marka(m), power(p), numberOfWheels(nw) {
+
+        friend std::istream& operator>>(std::istream& is, Student& student) {
+            is >> student.name >> student.student_id >> student.major;
+            return is;
         }
-        string getMarka() { return marka; }
-        void setMarka(string m) { marka = m; }
-        float getPower() {
-            return power;
-        }
-        void setPower(float p) {
-            power = p;
-        }
-        int getNumberOfWheels() {
-            return numberOfWheels;
-        }
-        void setNumberOfWheels(int n) {
-            numberOfWheels = n;
-        }
-        string toString() {
-            string r = marka + "\t" + to_string(power) + "\t" + to_string(numberOfWheels) + "\t";
-            return r;
+
+        friend std::ostream& operator<<(std::ostream& os, const Student& student) {
+            os << "Name: " << student.name << "\nStudent ID: " << student.student_id << "\nMajor: " << student.major;
+            return os;
         }
     };
 
-    class PassengerTransport {
+    class Father {
     protected:
-        int flightNumber;
-        int numberOfPassengerSeats;
+        int num_children;
+        std::string occupation;
     public:
-        PassengerTransport() : flightNumber(101), numberOfPassengerSeats(45) {}
-        PassengerTransport(int f, int n) : flightNumber(f), numberOfPassengerSeats(n) {}
-        int  getFlightNumber() { return flightNumber; }
-        void setFlightNumber(int f) { flightNumber = f; }
-        int getNumberOfPassengerSeats() { return numberOfPassengerSeats; }
-        void setnumberOfPassengerSeats(int n) { numberOfPassengerSeats = n; }
-        string toString() {
-            string r = to_string(flightNumber) + "\t" + to_string(numberOfPassengerSeats) + "\t";
-            return r;
+        Father(int num_children, const std::string& occupation)
+            : num_children(num_children), occupation(occupation) {}
+
+        virtual ~Father() {}
+
+        virtual void display() const {
+            std::cout << "Number of Children: " << num_children << "\nOccupation: " << occupation << std::endl;
+        }
+
+        friend std::istream& operator>>(std::istream& is, Father& father) {
+            is >> father.num_children >> father.occupation;
+            return is;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const Father& father) {
+            os << "Number of Children: " << father.num_children << "\nOccupation: " << father.occupation;
+            return os;
         }
     };
-    class AutoBus : public Car, public  PassengerTransport
-    {
-        string busRoute;
-    public:
-        AutoBus() : busRoute("Kyiv-Chernivci") {}
-        AutoBus(string m, float p, int nw, int f, int n, string bs)
-            : Car(m, p, nw), PassengerTransport(f, n), busRoute(bs) {}
-        string getbusRoute() {
-            return busRoute;
-        }
-        void setbusRoute(string bs) { busRoute = bs; }
 
-        string toString() {
-            string r = Car::toString() + PassengerTransport::toString() + busRoute;
-            return r;
+    class StudentFather : public Student, public Father {
+    public:
+        StudentFather(const std::string& name, int student_id, const std::string& major,
+            int num_children, const std::string& occupation)
+            : Student(name, student_id, major), Father(num_children, occupation) {}
+
+        ~StudentFather() override {}
+
+        void display() const override {
+            Student::display();
+            Father::display();
+        }
+
+        friend std::istream& operator>>(std::istream& is, StudentFather& student_father) {
+            is >> static_cast<Student&>(student_father);
+            is >> static_cast<Father&>(student_father);
+            return is;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const StudentFather& student_father) {
+            os << static_cast<const Student&>(student_father) << std::endl;
+            os << static_cast<const Father&>(student_father);
+            return os;
         }
     };
 
     int mainExample3()
     {
-        AutoBus def;
-        AutoBus lvCh("Iveko", 6.2f, 6, 301, 40, "Lviv-Chernivci");
-        AutoBus* pVnCn = new AutoBus();
-        pVnCn->setMarka("Ikarus");
-        pVnCn->setPower(7.2f);
-        pVnCn->setNumberOfWheels(6);
-        pVnCn->setFlightNumber(403);
-        pVnCn->setnumberOfPassengerSeats(42);
-        pVnCn->setbusRoute("Vinnicya-Chernivci");
+        StudentFather sf("John Doe", 12345, "Computer Science", 2, "Engineer");
 
-        cout << def.toString() << endl;
-        cout << lvCh.toString() << endl;
-        cout << pVnCn->toString() << endl;
+        std::cout << "StudentFather details:" << std::endl;
+        sf.display();
+
+        std::cout << "\n<< StudentFather details:" << std::endl;
+        std::cout << sf << std::endl;
+
+        std::cout << "Enter details for a new StudentFather (name, student_id, major, num_children, occupation): ";
+        StudentFather new_sf("", 0, "", 0, "");
+        std::cin >> new_sf;
+
+        std::cout << "\nNew StudentFather details:" << std::endl;
+        new_sf.display();
+
         return 0;
     }
 
